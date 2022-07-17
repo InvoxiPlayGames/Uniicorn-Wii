@@ -1,0 +1,17 @@
+All required files must go into the "files" directory.
+
+Required files:
+* boot0.bin - boot0 dump
+* nand.bin - nand dump
+* SEEPROM and OTP keys - see below
+
+Key load order:
+* otp.bin - raw OTP dump
+* seeprom.bin - raw SEEPROM dump
+* keys.bin (BootMii format)
+* nand.bin (BootMii format)
+
+It is **highly** recommended to have a backup of nand.bin
+and seeprom.bin. If using any SEEPROM file other than
+seeprom.bin, they will not be modified and a new seeprom.bin
+file will appear when the emulated Wii attempts to write to it.

@@ -1,0 +1,30 @@
+# vscode config
+.vscode/
+
+# build leftovers
+build/
+uniicorn
+boot1-extract
+*.o
+*.obj
+*.exe
+
+# sensitive files
+sram.bin
+nand.bin
+nand.bak
+boot0.bin
+boot1.bin
+boot1a.bin
+boot1b.bin
+boot1c.bin
+boot1d.bin
+keys.bin
+seeprom.bin
+seeprom.bak
+otp.bin
+
+# just in case
+.DS_Store
+.Spotlight-V100
+.Trashes
