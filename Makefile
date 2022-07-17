@@ -24,7 +24,7 @@ all: $(OUT_FILE)
 
 # linking the objects together into an executable
 $(OUT_FILE): $(OBJECTS)
-	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
+	$(CC) $(OBJECTS) $(LDFLAGS) -o $@
 
 # compiling all the source files into objects
 $(BUILD_DIR)/%.c.o: $(SRC_DIR)/%.c
