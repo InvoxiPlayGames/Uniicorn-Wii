@@ -32,7 +32,9 @@ sourced from any illegally obtained material, i.e. leaks)
 ----------
 
 Current state: 
- - boot0 completes, boot1 stalls attempting to initialise memory
+ - boot0 completes, boot1 completes(?), boot2loader decrypts
+   and fails to load boot2 due to incorrect memory mapping.
+ - Pretty hacked up, pretend we're stuck at boot1 still please.
 
 Implementations: (y = complete, p = partial)
 [p] Starlet CPU bootup [boot0-boot2] (p: 16-07-2022)
@@ -41,14 +43,17 @@ Implementations: (y = complete, p = partial)
 [p] NAND Interface (p: 17-07-2022)
 [y] OTP Registers (y: 17-07-2022)
 [p] GPIOs (p: 17-07-2022)
-[ ] Memory Interface
-[ ] Memory Controller
-    ... more is needed for boot1...
+[p] Memory Interface (p: 18-07-2022)
+[p] Memory Controller (p: 18-07-2022)
+[ ] Memory Mapping
+[ ] AHB Interface
+[p] Hollywood Registers (p: 16-07-2022)
+    ... more is needed for boot2loader...
 
 Milestones: (y = complete, p = partial)
 [y] boot0 Launch (p: 16-07-2022, y: 17-07-2022)
 [p] boot1 Launch (p: 17-07-2022)
-[ ] boot2/mini Launch
+[ ] boot2/BootMii Launch
 [ ] boot2/Nintendo Launch
 [ ] IOS Launch
 [ ] PowerPC bringup

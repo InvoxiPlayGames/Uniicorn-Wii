@@ -122,11 +122,6 @@
 #define HW_SIINT 0x210
 #define HW_VERSION 0x214
 #define HW_DBGBUSRD 0x218
-#define MEM_PROT 0x20a
-#define MEM_PROT_START 0x20c
-#define MEM_PROT_END 0x20e
-#define MEM_FLUSHREQ 0x228
-#define MEM_FLUSHACK 0x22a
 
 // referenced at 17-Jul-2022 https://wiibrew.org/wiki/Hollywood/GPIOs
 

@@ -27,6 +27,8 @@ void ARM_code_hook(uc_engine *uc, uint64_t address, uint32_t size, void *user_da
         ARM_printf("boot0 started");
     if (address == 0xfff00000)
         ARM_printf("boot1 started");
+    if (address == 0x00028710)
+        ARM_printf("boot2loader started");
 }
 
 int ARM_Main() {
@@ -92,7 +94,7 @@ int ARM_Main() {
     uc_mem_map_ptr(ARM_unicorn, SRAM_BASE, SRAM_SIZE, UC_PROT_ALL, SRAM_Buffer);
     uc_mem_map_ptr(ARM_unicorn, SRAM_MIRROR, SRAM_SIZE, UC_PROT_ALL, SRAM_Buffer);
     // TODO: properly map SRAM and BOOT0 according to HW_SRNPROT and HW_BOOT0
-    //       likely required for booting into boot2 and IOS
+    //       required for booting into boot2 and IOS
 
     // map MEM1/MEM2 into memory
     // TOOD: only map memory when boot1 properly initialises it in the memory interface

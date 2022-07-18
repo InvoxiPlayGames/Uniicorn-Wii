@@ -40,6 +40,9 @@ void HW_ImportKeys(Starlet_OTP *otp, Starlet_SEEPROM *seeprom) {
     }
 }
 
+// TODO: properly implement all of these, this is a big hack just to get boot1 to boot
+uint32_t HW_Register_Cache[0x100] = { 0 };
+
 uint64_t HW_ReadRegister(uc_engine *uc, uint64_t offset, unsigned size, void *user_data) {
     if (offset == HW_SRNPROT)
         return SWAP_32(HW_SRNPROT_State);
@@ -58,7 +61,7 @@ uint64_t HW_ReadRegister(uc_engine *uc, uint64_t offset, unsigned size, void *us
     if (offset == HW_VERSION)
         return SWAP_32(0x00000010); // ES2.0 ?
     HW_printfv("Unknown register read: 0x%llx", offset);
-    return 0xffffffff;
+    return SWAP_32(HW_Register_Cache[offset / 4]);
 }
 
 void HW_WriteRegister(uc_engine *uc, uint64_t offset, unsigned size, uint64_t value, void *user_data) {
@@ -88,11 +91,19 @@ void HW_WriteRegister(uc_engine *uc, uint64_t offset, unsigned size, uint64_t va
         uint32_t masked = (value32 & HW_State_GPIO_En) & HW_State_GPIO_Dir;
         if ((masked & GPIO_DEBUGMASK) != (HW_State_GPIO & GPIO_DEBUGMASK)) {
             unsigned char newDebug = ((masked & GPIO_DEBUGMASK) >> 16) & 0xFF;
-            HW_printfv("GPIO DEBUG: %02x", newDebug);
+            HW_printfv("GPIO DEBUG: %02x (%c)", newDebug, newDebug);
         }
         // this is bad, it doesn't take into account disabled and input pins
         HW_State_GPIO = masked;
         return;
+    } else if (offset == HW_SPARE0) {
+        // TODO: figure out WTF this is doing, for now just set the values in HW_BOOT0 that boot1 is happy with
+        if (GET_BIT(value32, 16)) {
+            HW_Register_Cache[HW_BOOT0 / 4] = 0;
+        } else {
+            HW_Register_Cache[HW_BOOT0 / 4] = 9;
+        }
     }
+    HW_Register_Cache[offset / 4] = value32;
     HW_printfv("Register write: 0x%llx = 0x%08x", offset, value32);
 }
