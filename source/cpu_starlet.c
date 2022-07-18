@@ -94,6 +94,11 @@ int ARM_Main() {
     // TODO: properly map SRAM and BOOT0 according to HW_SRNPROT and HW_BOOT0
     //       likely required for booting into boot2 and IOS
 
+    // map MEM1/MEM2 into memory
+    // TOOD: only map memory when boot1 properly initialises it in the memory interface
+    uc_mem_map_ptr(ARM_unicorn, MEM1_BASE, MEM1_SIZE, UC_PROT_ALL, MEM1_Buffer);
+    uc_mem_map_ptr(ARM_unicorn, MEM2_BASE, MEM2_SIZE, UC_PROT_ALL, MEM2_Buffer);
+
     // trap invalid memory accesses so we know what tries to get written to where
     uc_hook mem;
     uc_hook_add(ARM_unicorn, &mem, UC_HOOK_MEM_UNMAPPED, ARM_memory_invalid, NULL, 0xffffffff, 0x0);
@@ -113,9 +118,8 @@ int ARM_Main() {
     uc_mmio_map(ARM_unicorn, REG_NAND, ALIGN_SIZE(REG_NAND_SZ), NAND_ReadRegister, NULL, NAND_WriteRegister, NULL);
     // map WTF / AHB?? registers
     uc_mmio_map(ARM_unicorn, REG_WTF | REG_AHBMASK, ALIGN_SIZE(REG_WTF_SZ), ARM_WTFRead, NULL, ARM_WTFWrite, NULL);
-    // map memory registers
-    //uc_mmio_map(ARM_unicorn, REG_MEMC | REG_AHBMASK, ALIGN_SIZE(REG_MEMC_SZ), MEMC_ReadRegister, NULL, MEMC_WriteRegister, NULL);
-    //uc_mmio_map(ARM_unicorn, REG_MEMI | REG_AHBMASK, ALIGN_SIZE(REG_MEMI_SZ), MEMI_ReadRegister, NULL, MEMI_WriteRegister, NULL);
+    // map memory registers - unicorn requires alignment here, so handle MEMI and MEMC in the same register space
+    uc_mmio_map(ARM_unicorn, REG_MEMI | REG_AHBMASK, ALIGN_SIZE(REG_MEMI_SZ), MEMI_ReadRegister, NULL, MEMI_WriteRegister, NULL);
 
     // start the emulator
     ARM_printf("Starting emulation");

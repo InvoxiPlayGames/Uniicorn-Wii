@@ -132,10 +132,6 @@ void NAND_WriteRegister(uc_engine *uc, uint64_t offset, unsigned size, uint64_t 
     } else if (offset == NAND_CTRL) {
         if (!GET_BIT(realval, 31)) {
             NAND_printf("Reset NAND interface");
-            if (nand != NULL) {
-                fclose(nand);
-                nand = NULL;
-            }
             NAND_dest_address = 0;
             NAND_ecc_address = 0;
             NAND_read_offset = 0;

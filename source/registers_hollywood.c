@@ -55,6 +55,8 @@ uint64_t HW_ReadRegister(uc_engine *uc, uint64_t offset, unsigned size, void *us
         return SWAP_32(HW_State_GPIO & ~HW_State_GPIO_Dir);
     if (offset == HW_TIMER)
         return SWAP_32(HW_State_Timer);
+    if (offset == HW_VERSION)
+        return SWAP_32(0x00000010); // ES2.0 ?
     HW_printfv("Unknown register read: 0x%llx", offset);
     return 0xffffffff;
 }

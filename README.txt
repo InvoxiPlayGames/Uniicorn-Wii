@@ -32,7 +32,7 @@ sourced from any illegally obtained material, i.e. leaks)
 ----------
 
 Current state: 
- - boot0 completes, boot1 fails attempting to initialise memory
+ - boot0 completes, boot1 stalls attempting to initialise memory
 
 Implementations: (y = complete, p = partial)
 [p] Starlet CPU bootup [boot0-boot2] (p: 16-07-2022)

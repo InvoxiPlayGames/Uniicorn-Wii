@@ -23,6 +23,7 @@ keys.bin
 seeprom.bin
 seeprom.bak
 otp.bin
+out.log
 
 # just in case
 .DS_Store
