@@ -16,10 +16,15 @@ int MEM_ARM_SRAMState = 0;
 // TODO: find out if external devices have access to mirrored/boot0 memory space
 // TODO: add checking to abide by the currently set SRNPROT rules
 void * MEM_EmuToHost(uint64_t emu, MEM_Source src) {
+    // sram
     if (emu >= SRAM_BASE && emu < SRAM_BASE + SRAM_SIZE)
         return SRAM_Buffer + (emu - SRAM_BASE);
     if (emu >= SRAM_MIRROR && emu < SRAM_MIRROR + SRAM_SIZE)
         return SRAM_Buffer + (emu - SRAM_MIRROR);
+    // hack to get debug out
+    if (emu >= WEIRD2_BASE && emu < WEIRD2_BASE + WEIRD_SIZE && MEM_ARM_SRAMState == 4)
+        return SRAM_Buffer + (emu - WEIRD2_BASE);
+    // main memory
     if (emu >= MEM1_BASE && emu < MEM1_BASE + MEM1_SIZE)
         return MEM1_Buffer + (emu - MEM1_BASE);
     if (emu >= MEM2_BASE && emu < MEM2_BASE + MEM2_SIZE)

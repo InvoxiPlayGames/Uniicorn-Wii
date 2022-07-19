@@ -31,6 +31,19 @@ void ARM_code_hook(uc_engine *uc, uint64_t address, uint32_t size, void *user_da
         ARM_printf("boot2loader started");
 }
 
+void ARM_intr_hook(uc_engine *uc, uint32_t intno, void *user_data) {
+    int r0 = 0;
+    int r1 = 0;
+    uc_reg_read(uc, UC_ARM_REG_R0, &r0);
+    uc_reg_read(uc, UC_ARM_REG_R1, &r1);
+    if (r0 == 4) { // debug output
+        char *string = MEM_EmuToHost(r1, MEM_SOURCE_STARLET);
+        ARM_printfv("Debug output: %s", string);
+        return;
+    }
+    ARM_printfv("Interrupt %02x(%08x)", r0, r1);
+}
+
 int ARM_Main() {
     uc_err err;
 
@@ -75,18 +88,17 @@ int ARM_Main() {
     //ARM_printf("Creating Unicorn emulator");
     err = uc_open(UC_ARCH_ARM, UC_MODE_ARM | UC_MODE_BIG_ENDIAN, &ARM_unicorn);
     if (err != UC_ERR_OK) {
-        ARM_printfv("failed %u (%s)", err, uc_strerror(err));
+        ARM_printfv("Creating emulator failed: %s (%u)", uc_strerror(err), err);
         return -1;
     }
 
     // attempt to set the CPU mode
-    // TODO: figure out why this fails
-    /*printf("setting CPU model\n");
-    err = uc_ctl_set_cpu_model(uc, UC_CPU_ARM_926);
+    // TODO: figure out why UC_CPU_ARM_926 fails
+    err = uc_ctl_set_cpu_model(ARM_unicorn, UC_CPU_ARM_946);
     if (err != UC_ERR_OK) {
-        printf("failed %u (%s)\n", err, uc_strerror(err));
+        ARM_printfv("Setting CPU model failed: %s (%u)", uc_strerror(err), err);
         return -1;
-    }*/
+    }
 
     // set boot0 in the memory mapping
     MEM_SetBoot0(ARM_boot0_file);
@@ -104,6 +116,8 @@ int ARM_Main() {
     // apply a code hook so we can trace the program counter properly (and increase HW_CLOCK)
     uc_hook code;
     uc_hook_add(ARM_unicorn, &code, UC_HOOK_CODE, ARM_code_hook, NULL, 0xffffffff, 0x0);
+    uc_hook intr;
+    uc_hook_add(ARM_unicorn, &intr, UC_HOOK_INTR, ARM_intr_hook, NULL, 0xffffffff, 0x0);
 
     // map hollywood registers, both with the AHB bit applied and without
     uc_mmio_map(ARM_unicorn, REG_HW | REG_AHBMASK, ALIGN_SIZE(REG_HW_SZ), HW_ReadRegister, NULL, HW_WriteRegister, NULL);
