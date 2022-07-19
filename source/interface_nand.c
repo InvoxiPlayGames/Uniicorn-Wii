@@ -149,11 +149,11 @@ void NAND_WriteRegister(uc_engine *uc, uint64_t offset, unsigned size, uint64_t 
             int readbytes = fread(&tempread, 1, sizeof(NAND_Page), nand);
             // TODO: make sure the memory is mapped valid.
             //       figure out what real hardware does if it isn't.
-            void *data_real = MEM_EmuToHost(NAND_dest_address);
+            void *data_real = MEM_EmuToHost(NAND_dest_address, MEM_SOURCE_NAND);
             memcpy(data_real, tempread.data, sizeof(tempread.data));
-            void *ecc_real = MEM_EmuToHost(NAND_ecc_address);
+            void *ecc_real = MEM_EmuToHost(NAND_ecc_address, MEM_SOURCE_NAND);
             memcpy(ecc_real, tempread.ecc, sizeof(tempread.ecc));
-            void *calc_real = MEM_EmuToHost(NAND_ecc_address ^ 0x40);
+            void *calc_real = MEM_EmuToHost(NAND_ecc_address ^ 0x40, MEM_SOURCE_NAND);
             for (int i = 0; i < 4; i++) {
                 NAND_calc_ecc(data_real + (i * 0x200), calc_real + (i * 0x4));
             }

@@ -48,7 +48,7 @@ void SHA_WriteRegister(uc_engine *uc, uint64_t offset, unsigned size, uint64_t v
             SHA_printfv("Hashing 0x%x bytes (%i blocks) from 0x%08x", shasize, blockcount, SHA_src_address);
             // TODO: make sure the memory is mapped valid.
             //       figure out what real hardware does if it isn't.
-            void *src = MEM_EmuToHost(SHA_src_address);
+            void *src = MEM_EmuToHost(SHA_src_address, MEM_SOURCE_SHA);
             // the sha1 library has a tendency to mangle the data
             // so make a buffer to hold it
             void *tempbuf = malloc(shasize);

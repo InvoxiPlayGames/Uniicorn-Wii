@@ -10,20 +10,15 @@ boot1-extract
 *.exe
 
 # sensitive files
+files/*.bin
+files/*.bak
 sram.bin
-nand.bin
-nand.bak
-boot0.bin
-boot1.bin
+mem1.bin
 boot1a.bin
 boot1b.bin
 boot1c.bin
 boot1d.bin
-keys.bin
-seeprom.bin
-seeprom.bak
-otp.bin
-out.log
+*.log
 
 # just in case
 .DS_Store

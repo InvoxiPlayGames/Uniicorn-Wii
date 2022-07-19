@@ -43,8 +43,8 @@ int ARM_Main() {
     }
     fread(ARM_boot0_file, sizeof(char), sizeof(ARM_boot0_file), b0);
     fclose(b0);
-    // always skip over applying ecc correction
-    //ARM_boot0_file[0x384] = 0xEA;
+    // skip hash check
+    //ARM_boot0_file[0x4cb] = 0;
 
     // attempt to load OTP from otp.bin
     FILE *otp = fopen("files/otp.bin", "r");
@@ -88,13 +88,10 @@ int ARM_Main() {
         return -1;
     }*/
 
-    // map boot0 into memory
-    uc_mem_map_ptr(ARM_unicorn, BOOT0_BASE, sizeof(ARM_boot0_file), UC_PROT_ALL, (void*)ARM_boot0_file);
-    // map SRAM memory
-    uc_mem_map_ptr(ARM_unicorn, SRAM_BASE, SRAM_SIZE, UC_PROT_ALL, SRAM_Buffer);
-    uc_mem_map_ptr(ARM_unicorn, SRAM_MIRROR, SRAM_SIZE, UC_PROT_ALL, SRAM_Buffer);
-    // TODO: properly map SRAM and BOOT0 according to HW_SRNPROT and HW_BOOT0
-    //       required for booting into boot2 and IOS
+    // set boot0 in the memory mapping
+    MEM_SetBoot0(ARM_boot0_file);
+    // set the SRAM state, iouen off, boot0 on
+    MEM_ARM_SetSRAM(false, true);
 
     // map MEM1/MEM2 into memory
     // TOOD: only map memory when boot1 properly initialises it in the memory interface
@@ -118,6 +115,8 @@ int ARM_Main() {
     uc_mmio_map(ARM_unicorn, REG_SHA, ALIGN_SIZE(REG_SHA_SZ), SHA_ReadRegister, NULL, SHA_WriteRegister, NULL);
     // map NAND registers
     uc_mmio_map(ARM_unicorn, REG_NAND, ALIGN_SIZE(REG_NAND_SZ), NAND_ReadRegister, NULL, NAND_WriteRegister, NULL);
+    // map EHCI registers
+    uc_mmio_map(ARM_unicorn, REG_EHCI, ALIGN_SIZE(REG_EHCI_SZ), EHCI_ReadRegister, NULL, EHCI_WriteRegister, NULL);
     // map WTF / AHB?? registers
     uc_mmio_map(ARM_unicorn, REG_WTF | REG_AHBMASK, ALIGN_SIZE(REG_WTF_SZ), ARM_WTFRead, NULL, ARM_WTFWrite, NULL);
     // map memory registers - unicorn requires alignment here, so handle MEMI and MEMC in the same register space
@@ -125,7 +124,7 @@ int ARM_Main() {
 
     // start the emulator
     ARM_printf("Starting emulation");
-    err = uc_emu_start(ARM_unicorn, BOOT0_BASE, BOOT0_BASE + 0xdc /* panic() */, 0, 0);
+    err = uc_emu_start(ARM_unicorn, BOOT0_ENTRY, 0xFFFFFFFF /* panic() = BOOT0_ENTRY + 0xdc */, 0, 0);
     if (err != UC_ERR_OK) {
         ARM_printfv("Error: %u (%s)", err, uc_strerror(err));
     }
@@ -138,12 +137,16 @@ int ARM_Main() {
     uc_reg_read(ARM_unicorn, UC_ARM_REG_PC, &pc);
     uc_reg_read(ARM_unicorn, UC_ARM_REG_SP, &sp);
     uc_reg_read(ARM_unicorn, UC_ARM_REG_LR, &lr);
-    ARM_printfv("Final state - pc:0x%08x lr:0x%08x sp:0x%08x. SRAM dumped.", pc, lr, sp);
+    ARM_printfv("Final state - pc:0x%08x lr:0x%08x sp:0x%08x. SRAM[%i] + MEM1 dumped.", pc, lr, sp, MEM_ARM_SRAMState);
 
     // dump the contents of SRAM
     FILE *sramdump = fopen("sram.bin", "w+");
     fwrite(SRAM_Buffer, 1, SRAM_SIZE, sramdump);
     fclose(sramdump);
+    // dump the contents of MEM1
+    FILE *mem1dump = fopen("mem1.bin", "w+");
+    fwrite(MEM1_Buffer, 1, MEM1_SIZE, mem1dump);
+    fclose(mem1dump);
     
     return 0;
 }

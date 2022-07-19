@@ -7,6 +7,7 @@
 
 uint32_t HW_SRNPROT_State = 0;
 uint32_t HW_OTP_Data = 0xffffffff;
+bool HW_boot0_State = true;
 
 uint32_t HW_State_GPIO_En = 0x00000000;
 uint32_t HW_State_GPIO_Dir = 0x00000000;
@@ -35,7 +36,7 @@ void HW_ImportKeys(Starlet_OTP *otp, Starlet_SEEPROM *seeprom) {
     }
     if (seeprom != NULL && !HW_SEEPROMImported) {
         memcpy(&HW_CurrentSEEPROM, seeprom, sizeof(Starlet_SEEPROM));
-        HW_printfv("Imported SEEPROM! NG Key ID: %08x", SWAP_32(HW_CurrentSEEPROM.ng_key_id));
+        HW_printfv("Imported SEEPROM! NG Key ID: %08x", SWAP_32(HW_CurrentSEEPROM.parsed.ng_key_id));
         HW_SEEPROMImported = true;
     }
 }
@@ -71,6 +72,7 @@ void HW_WriteRegister(uc_engine *uc, uint64_t offset, unsigned size, uint64_t va
     if (offset == HW_SRNPROT) {
         HW_printfv("SRNPROT = %x", value32);
         HW_SRNPROT_State = value32;
+        MEM_ARM_SetSRAM(GET_BIT(HW_SRNPROT_State, 5), HW_boot0_State);
         return;
     } else if (offset == HW_OTPCMD) {
         if (!GET_BIT(value32, 31)) {
@@ -103,6 +105,9 @@ void HW_WriteRegister(uc_engine *uc, uint64_t offset, unsigned size, uint64_t va
         } else {
             HW_Register_Cache[HW_BOOT0 / 4] = 9;
         }
+    } else if (offset == HW_BOOT0) {
+        HW_boot0_State = !GET_BIT(value32, 12);
+        MEM_ARM_SetSRAM(GET_BIT(HW_SRNPROT_State, 5), HW_boot0_State);
     }
     HW_Register_Cache[offset / 4] = value32;
     HW_printfv("Register write: 0x%llx = 0x%08x", offset, value32);

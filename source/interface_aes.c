@@ -71,8 +71,8 @@ void AES_WriteRegister(uc_engine *uc, uint64_t offset, unsigned size, uint64_t v
                 AES_init_ctx_iv(&AES_context, AES_key_buffer, AES_iv_buffer);
             // TODO: make sure the memory is mapped valid.
             //       figure out what real hardware does if it isn't.
-            void *src = MEM_EmuToHost(AES_src_address);
-            void *dest = MEM_EmuToHost(AES_dest_address);
+            void *src = MEM_EmuToHost(AES_src_address, MEM_SOURCE_AES);
+            void *dest = MEM_EmuToHost(AES_dest_address, MEM_SOURCE_AES);
             void *decbuffer = malloc(aessize);
             memcpy(decbuffer, src, aessize);
             if (AES_should_decrypt && AES_enable_encryption) {
