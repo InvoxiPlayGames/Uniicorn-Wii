@@ -24,7 +24,7 @@ void ARM_code_hook(uc_engine *uc, uint64_t address, uint32_t size, void *user_da
     HW_IncrementTimer();
     // monitor what part of the OS we are at
     if (address == 0xffff0000)
-        ARM_printf("boot0 started");
+        ARM_printf("boot0/boot2/IOS (re-)started");
     if (address == 0xfff00000)
         ARM_printf("boot1 started");
     if (address == 0x00028710)
