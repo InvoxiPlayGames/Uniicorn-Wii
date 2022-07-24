@@ -16,9 +16,9 @@ uint64_t MEMI_ReadRegister(uc_engine *uc, uint64_t offset, unsigned size, void *
         offset -= REG_MEMC - REG_MEMI;
         if (offset == MEM_AHMFLUSH_ACK)
             return flushreq;
-        MEMC_printfv("Tried to read register 0x%llx", offset);
+        //MEMC_printfv("Tried to read register 0x%llx", offset);
     } else {
-        MEMI_printfv("Tried to read register 0x%llx", offset);
+        //MEMI_printfv("Tried to read register 0x%llx", offset);
     }
     return 0;
 }
@@ -28,9 +28,9 @@ void MEMI_WriteRegister(uc_engine *uc, uint64_t offset, unsigned size, uint64_t 
         offset -= REG_MEMC - REG_MEMI;
         if (offset == MEM_AHMFLUSH)
             flushreq = (uint16_t)value;
-        MEMC_printfv("Tried to write register 0x%llx = 0x%08llx", offset, SWAP_32(value));
+        //MEMC_printfv("Tried to write register 0x%llx = 0x%08llx", offset, SWAP_32(value));
     } else {
-        MEMI_printfv("Tried to write register 0x%llx = 0x%08llx", offset, SWAP_32(value));
+        //MEMI_printfv("Tried to write register 0x%llx = 0x%08llx", offset, SWAP_32(value));
     }
     return;
 }

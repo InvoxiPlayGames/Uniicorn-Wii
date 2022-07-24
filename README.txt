@@ -34,10 +34,11 @@ sourced from any illegally obtained material, i.e. leaks)
 Current state: 
  - boot0 completes, boot1 completes(?), boot2loader decrypts
    and loads boot2, boot2 disables boot0, outputs a few debug lines,
-   then crashes due to an invalid memory access
+   then crashes due to an unimplemented interrupt when enabling MMU.
  - Super duper hacked up, pretend we're stuck at boot1 still please.
    There's a lot that's undocumented about this process, it's a lot
    of grease holding this together getting it this far.
+- Requires the latest dev commit of Unicorn engine.
 
 Implementations: (y = complete, p = partial)
 [p] Starlet CPU bootup [boot0-boot2] (p: 16-07-2022)
@@ -56,7 +57,8 @@ Implementations: (y = complete, p = partial)
 [ ] SD Interface
 [ ] EHCI Interface
 [ ] EXI Interface
-    ... more is needed for boot2/BootMii...
+[ ] MMU
+    ... more is needed for boot2...
 
 Milestones: (y = complete, p = partial)
 [y] boot0 Launch (p: 16-07-2022, y: 17-07-2022)

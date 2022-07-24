@@ -8,11 +8,11 @@ uc_engine *ARM_unicorn;
 char ARM_boot0_file[0x1000];
 
 uint64_t ARM_WTFRead(uc_engine *uc, uint64_t offset, unsigned size, void *user_data) {
-    ARM_printfv("[AHB?] Tried to read register 0x%llx", offset);
+    //ARM_printfv("[AHB?] Tried to read register 0x%llx", offset);
     return 0;
 }
 void ARM_WTFWrite(uc_engine *uc, uint64_t offset, unsigned size, uint64_t value, void *user_data) {
-    ARM_printfv("[AHB?] Tried to write register 0x%llx = 0x%08llx", offset, SWAP_32(value));
+    //ARM_printfv("[AHB?] Tried to write register 0x%llx = 0x%08llx", offset, SWAP_32(value));
     return;
 }
 
@@ -31,17 +31,34 @@ void ARM_code_hook(uc_engine *uc, uint64_t address, uint32_t size, void *user_da
         ARM_printf("boot2loader started");
 }
 
+void ARM_print_state() {
+    // TODO: migrate to uc_reg_read_batch
+    unsigned int temp = 0;
+    ARM_printf("Register state:");
+    for (int i = UC_ARM_REG_R0; i <= UC_ARM_REG_R12; i++) {
+        uc_reg_read(ARM_unicorn, i, &temp);
+        ARM_printfv("    R%i = 0x%08x", i - UC_ARM_REG_R0, temp);
+    }
+    uc_reg_read(ARM_unicorn, UC_ARM_REG_PC, &temp);
+    ARM_printfv("    PC = 0x%08x", temp);
+    uc_reg_read(ARM_unicorn, UC_ARM_REG_LR, &temp);
+    ARM_printfv("    LR = 0x%08x", temp);
+    uc_reg_read(ARM_unicorn, UC_ARM_REG_SP, &temp);
+    ARM_printfv("    SP = 0x%08x", temp);
+}
+
 void ARM_intr_hook(uc_engine *uc, uint32_t intno, void *user_data) {
     int r0 = 0;
-    int r1 = 0;
     uc_reg_read(uc, UC_ARM_REG_R0, &r0);
-    uc_reg_read(uc, UC_ARM_REG_R1, &r1);
-    if (r0 == 4) { // debug output
+    if (r0 == 4) { // debug output, TODO: verify intno
+        int r1 = 0;
+        uc_reg_read(uc, UC_ARM_REG_R1, &r1);
         char *string = MEM_EmuToHost(r1, MEM_SOURCE_STARLET);
         ARM_printfv("Debug output: %s", string);
         return;
     }
-    ARM_printfv("Interrupt %02x(%08x)", r0, r1);
+    ARM_printfv("Unhandled interrupt 0x%x", intno);
+    uc_emu_stop(uc);
 }
 
 int ARM_Main() {
@@ -94,7 +111,7 @@ int ARM_Main() {
 
     // attempt to set the CPU mode
     // TODO: figure out why UC_CPU_ARM_926 fails
-    err = uc_ctl_set_cpu_model(ARM_unicorn, UC_CPU_ARM_946);
+    err = uc_ctl_set_cpu_model(ARM_unicorn, UC_CPU_ARM_926);
     if (err != UC_ERR_OK) {
         ARM_printfv("Setting CPU model failed: %s (%u)", uc_strerror(err), err);
         return -1;
@@ -116,6 +133,7 @@ int ARM_Main() {
     // apply a code hook so we can trace the program counter properly (and increase HW_CLOCK)
     uc_hook code;
     uc_hook_add(ARM_unicorn, &code, UC_HOOK_CODE, ARM_code_hook, NULL, 0xffffffff, 0x0);
+    // apply hooks for the interrupts
     uc_hook intr;
     uc_hook_add(ARM_unicorn, &intr, UC_HOOK_INTR, ARM_intr_hook, NULL, 0xffffffff, 0x0);
 
@@ -144,14 +162,8 @@ int ARM_Main() {
     }
     ARM_printf("Emulation stopped.");
 
-    // print out a few useful registers
-    int pc = 0;
-    int sp = 0;
-    int lr = 0;
-    uc_reg_read(ARM_unicorn, UC_ARM_REG_PC, &pc);
-    uc_reg_read(ARM_unicorn, UC_ARM_REG_SP, &sp);
-    uc_reg_read(ARM_unicorn, UC_ARM_REG_LR, &lr);
-    ARM_printfv("Final state - pc:0x%08x lr:0x%08x sp:0x%08x. SRAM[%i] + MEM1 dumped.", pc, lr, sp, MEM_ARM_SRAMState);
+    // print out the state of the registers
+    ARM_print_state();
 
     // dump the contents of SRAM
     FILE *sramdump = fopen("sram.bin", "w+");

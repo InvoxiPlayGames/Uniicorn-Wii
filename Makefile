@@ -2,11 +2,10 @@
 
 # the directories to compile, include and use for objects
 SRC_DIR := source
-INC_DIRS := include /opt/homebrew/include
+INC_DIRS := include
 BUILD_DIR := build
 # the libraries to link the application with
 LIBS := unicorn
-LIB_DIRS := /opt/homebrew/lib
 # the output filename
 OUT_FILE := uniicorn
 
