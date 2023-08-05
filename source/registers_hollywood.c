@@ -11,6 +11,7 @@ bool HW_boot0_State = true;
 
 uint32_t HW_State_GPIO_En = 0x00000000;
 uint32_t HW_State_GPIO_Dir = 0x00000000;
+uint32_t HW_State_GPIO_IntFlag = 0x00000000;
 uint32_t HW_State_GPIO = 0x00000000;
 
 uint32_t HW_State_Timer = 0x00000000;
@@ -72,7 +73,7 @@ void HW_WriteRegister(uc_engine *uc, uint64_t offset, unsigned size, uint64_t va
     if (offset == HW_SRNPROT) {
         HW_printfv("SRNPROT = %x", value32);
         HW_SRNPROT_State = value32;
-        MEM_ARM_SetSRAM(GET_BIT(HW_SRNPROT_State, 5), HW_boot0_State);
+        MEM_ARM_SetSRAM(GET_BIT(HW_SRNPROT_State, 5), HW_boot0_State, false);
         return;
     } else if (offset == HW_OTPCMD) {
         if (!GET_BIT(value32, 31)) {
@@ -98,6 +99,11 @@ void HW_WriteRegister(uc_engine *uc, uint64_t offset, unsigned size, uint64_t va
         // this is bad, it doesn't take into account disabled and input pins
         HW_State_GPIO = masked;
         return;
+    } else if (offset == HW_GPIO_INTFLAG) {
+        // HACK - Commented this out so BootMii would always fall back
+        // due to power button boot behaviour
+        //HW_State_GPIO_IntFlag = value32;
+        //return;
     } else if (offset == HW_SPARE0) {
         // TODO: figure out WTF this is doing, for now just set the values in HW_BOOT0 that boot1 is happy with
         if (GET_BIT(value32, 16)) {
@@ -107,7 +113,7 @@ void HW_WriteRegister(uc_engine *uc, uint64_t offset, unsigned size, uint64_t va
         }
     } else if (offset == HW_BOOT0) {
         HW_boot0_State = !GET_BIT(value32, 12);
-        MEM_ARM_SetSRAM(GET_BIT(HW_SRNPROT_State, 5), HW_boot0_State);
+        MEM_ARM_SetSRAM(GET_BIT(HW_SRNPROT_State, 5), HW_boot0_State, false);
     }
     HW_Register_Cache[offset / 4] = value32;
     HW_printfv("Register write: 0x%llx = 0x%08x", offset, value32);

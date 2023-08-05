@@ -22,8 +22,10 @@ void * MEM_EmuToHost(uint64_t emu, MEM_Source src) {
     if (emu >= SRAM_MIRROR && emu < SRAM_MIRROR + SRAM_SIZE)
         return SRAM_Buffer + (emu - SRAM_MIRROR);
     // hack to get debug out
-    if (emu >= WEIRD2_BASE && emu < WEIRD2_BASE + WEIRD_SIZE && MEM_ARM_SRAMState == 4)
+    if (MEM_ARM_SRAMState == 4 && emu >= WEIRD2_BASE && emu < WEIRD2_BASE + WEIRD_SIZE)
         return SRAM_Buffer + (emu - WEIRD2_BASE);
+    if (MEM_ARM_SRAMState == 3 && emu >= WEIRD1_BASE && emu < WEIRD1_BASE + (WEIRD_SIZE * 2))
+        return SRAM_Buffer + (emu - WEIRD1_BASE);
     // main memory
     if (emu >= MEM1_BASE && emu < MEM1_BASE + MEM1_SIZE)
         return MEM1_Buffer + (emu - MEM1_BASE);
@@ -34,7 +36,7 @@ void * MEM_EmuToHost(uint64_t emu, MEM_Source src) {
 
 // sets up the mirrored SRAM + boot0 mappings on the Starlet
 // referenced at 19-Jul-2022 https://wiibrew.org/wiki/Starlet/Main_Memory
-void MEM_ARM_SetSRAM(bool iouen, bool boot0) {
+void MEM_ARM_SetSRAM(bool iouen, bool boot0, bool mmu) {
     uc_mem_unmap(ARM_unicorn, WEIRD1_BASE, WEIRD_SIZE);
     uc_mem_unmap(ARM_unicorn, WEIRD2_BASE, WEIRD_SIZE);
     uc_mem_unmap(ARM_unicorn, SRAM_BASE, SRAM_SIZE);
@@ -44,7 +46,9 @@ void MEM_ARM_SetSRAM(bool iouen, bool boot0) {
     uc_mem_unmap(ARM_unicorn, SRAM_MIRROR, SRAM_B_SIZE);
     uc_mem_unmap(ARM_unicorn, SRAM_BASE + SRAM_A_SIZE, SRAM_B_SIZE);
     uc_mem_unmap(ARM_unicorn, SRAM_MIRROR + SRAM_A_SIZE, SRAM_B_SIZE);
-    MEM_printfv("Updating mappings (boot0: %i, iouen: %i)", boot0, iouen);
+    //MEM_printfv("Updating mappings (boot0: %i, iouen: %i, mmu: %i)", boot0, iouen, mmu);
+    if (mmu)
+        return;
     if (boot0) { 
         if (!iouen) { // bootup state
             // the SRAM 0d40/fff0 state is normal

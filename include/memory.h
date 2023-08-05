@@ -36,7 +36,7 @@ typedef enum _MEM_Source {
 } MEM_Source;
 
 void MEM_MakeAllocations();
-void MEM_ARM_SetSRAM(bool iouen, bool boot0);
+void MEM_ARM_SetSRAM(bool iouen, bool boot0, bool mmu);
 void MEM_SetBoot0(void *boot0_ptr);
 void * MEM_EmuToHost(uint64_t emu, MEM_Source src);
 int MEM_ARM_SRAMState;

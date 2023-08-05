@@ -8,6 +8,9 @@ BUILD_DIR := build
 LIBS := unicorn
 # the output filename
 OUT_FILE := uniicorn
+ifeq ($(OS),Windows_NT)
+	OUT_FILE := $(addsuffix .exe,$(OUT_FILE))
+endif
 
 # add the include directories to the C flags 
 CFLAGS += $(patsubst %,-I%,$(INC_DIRS))

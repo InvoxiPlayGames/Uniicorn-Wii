@@ -1,6 +1,6 @@
 Uniicorn - WIP Research Wii emulator using Unicorn engine
 
-**THIS DOES NOT PLAY RETAIL GAMES OR HOMEBREW!**
+**THIS DOES NOT, AND PROBABLY WILL NEVER, PLAY RETAIL GAMES OR HOMEBREW!**
 Check https://dolphin-emu.org out for that.
 
 **THIS DOES NOT COMPLETELY BOOT THE STARLET!**
@@ -34,10 +34,10 @@ sourced from any illegally obtained material, i.e. leaks)
 Current state: 
  - boot0 completes, boot1 completes(?), boot2loader decrypts
    and loads boot2, boot2 disables boot0, outputs a few debug lines,
-   then crashes due to an unimplemented interrupt when enabling MMU.
- - Super duper hacked up, pretend we're stuck at boot1 still please.
-   There's a lot that's undocumented about this process, it's a lot
-   of grease holding this together getting it this far.
+   then crashes due to MMU inconsistencies with Unicorn Engine.
+   Currently attempting to work around this - possibly virtualising
+   the whole MMU is in order as Unicorn Engine seems to do this
+   incorrectly and raises a prefetch abort after boot2 enables MMU.
 - Requires the latest dev commit of Unicorn engine.
 
 Implementations: (y = complete, p = partial)
@@ -49,7 +49,7 @@ Implementations: (y = complete, p = partial)
 [p] GPIOs (p: 17-07-2022)
 [ ] Memory Interface
 [ ] Memory Controller
-[y] Memory Mapping (y: 19-07-2022)
+[p] Memory Mapping (p: 19-07-2022)
 [ ] AHB Interface
 [p] Hollywood Registers (p: 16-07-2022)
 [ ] SEEPROM GPIO Emulation
@@ -82,3 +82,4 @@ This project uses:
     * 'SHA-1 in C' by Steve Reid, under public domain.
     * tiny-AES-c by kokke, under public domain.
       https://github.com/kokke/tiny-AES-c
+  

@@ -28,4 +28,7 @@ void MEMC_WriteRegister(uc_engine *uc, uint64_t offset, unsigned size, uint64_t 
 uint64_t EHCI_ReadRegister(uc_engine *uc, uint64_t offset, unsigned size, void *user_data);
 void EHCI_WriteRegister(uc_engine *uc, uint64_t offset, unsigned size, uint64_t value, void *user_data);
 
+uint64_t EXI_ReadRegister(uc_engine *uc, uint64_t offset, unsigned size, void *user_data);
+void EXI_WriteRegister(uc_engine *uc, uint64_t offset, unsigned size, uint64_t value, void *user_data);
+
 #endif // INTERFACES_H_
