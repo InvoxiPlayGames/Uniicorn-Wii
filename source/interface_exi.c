@@ -91,7 +91,7 @@ void EXI_WriteRegister(uc_engine *uc, uint64_t offset, unsigned size, uint64_t v
                 gecko_last_control = realval;
                 // mask off the highest nibble of the data buffer
                 char command = (gecko_exi_data_buf >> 28) & 0xF;
-                EXI_printfv("0x%08x 0x%08x 0x%x", gecko_last_control, gecko_exi_data_buf, command);
+                //EXI_printfv("0x%08x 0x%08x 0x%x", gecko_last_control, gecko_exi_data_buf, command);
                 if (command == 0xB) { // send 8-bit byte
                     char byte = (gecko_exi_data_buf >> 20) & 0x7F;
                     if (byte == '\n' || gecko_out_read >= sizeof(gecko_out_buffer)) { // once we reach a newline, print it to stdout
@@ -101,7 +101,7 @@ void EXI_WriteRegister(uc_engine *uc, uint64_t offset, unsigned size, uint64_t v
                     }
                     // set the bit saying a byte was sent
                     // TODO: verify this with hardware
-                    gecko_exi_data_buf = 0x08000000;
+                    gecko_exi_data_buf = 0x04000000;
                 } else if (command == 0xC) { // asking if ready to send byte
                     gecko_exi_data_buf = 0x04000000;
                 } else if (command == 0x9) { // identification

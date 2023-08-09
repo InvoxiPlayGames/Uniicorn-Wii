@@ -14,6 +14,8 @@ uint32_t HW_State_GPIO_Dir = 0x00000000;
 uint32_t HW_State_GPIO_IntFlag = 0x00000000;
 uint32_t HW_State_GPIO = 0x00000000;
 
+uint32_t HW_State_AIPPROT = 0x00000000;
+
 uint32_t HW_State_Timer = 0x00000000;
 
 Starlet_OTP HW_CurrentOTP;
@@ -62,6 +64,8 @@ uint64_t HW_ReadRegister(uc_engine *uc, uint64_t offset, unsigned size, void *us
         return SWAP_32(HW_State_Timer);
     if (offset == HW_VERSION)
         return SWAP_32(0x00000010); // ES2.0 ?
+    if (offset == HW_AIPPROT)
+        return SWAP_32(HW_State_AIPPROT);
     HW_printfv("Unknown register read: 0x%llx", offset);
     return SWAP_32(HW_Register_Cache[offset / 4]);
 }
@@ -115,6 +119,9 @@ void HW_WriteRegister(uc_engine *uc, uint64_t offset, unsigned size, uint64_t va
     } else if (offset == HW_BOOT0) {
         HW_boot0_State = !GET_BIT(value32, 12);
         MEM_ARM_SetSRAM(GET_BIT(HW_SRNPROT_State, 5), HW_boot0_State, false);
+    } else if (offset == HW_AIPPROT) {
+        HW_State_AIPPROT = value32;
+        return;
     }
     HW_Register_Cache[offset / 4] = value32;
     HW_printfv("Register write: 0x%llx = 0x%08x", offset, value32);
