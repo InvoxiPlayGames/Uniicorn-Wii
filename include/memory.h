@@ -20,6 +20,8 @@
 #define MEM_VRTMASK 0x80000000
 #define BOOT0_ENTRY 0xffff0000
 
+// BOOT0 buffer
+extern void * BOOT0_Buffer;
 // IOS SRAM buffer
 extern void * SRAM_Buffer;
 // MEM1 buffer
@@ -39,6 +41,8 @@ void MEM_MakeAllocations();
 void MEM_ARM_SetSRAM(bool iouen, bool boot0, bool mmu);
 void MEM_SetBoot0(void *boot0_ptr);
 void * MEM_EmuToHost(uint64_t emu, MEM_Source src);
+void MEM_FreeAllocations();
+bool MEM_AllocationsValid();
 int MEM_ARM_SRAMState;
 
 #endif // MEMORY_H_

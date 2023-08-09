@@ -38,6 +38,7 @@ Current state:
    Currently attempting to work around this - possibly virtualising
    the whole MMU is in order as Unicorn Engine seems to do this
    incorrectly and raises a prefetch abort after boot2 enables MMU.
+   "mini" is able to boot up, but also crashes due to MMU errors.
 - Requires the latest dev commit of Unicorn engine.
 
 Implementations: (y = complete, p = partial)
@@ -56,7 +57,7 @@ Implementations: (y = complete, p = partial)
 [ ] Interrupt Management
 [ ] SD Interface
 [ ] EHCI Interface
-[ ] EXI Interface
+[p] EXI Interface (p: 09-08-2023)
 [ ] MMU
     ... more is needed for boot2...
 
@@ -64,6 +65,7 @@ Milestones: (y = complete, p = partial)
 [y] boot0 Launch (p: 16-07-2022, y: 17-07-2022)
 [p] boot1 Launch (p: 17-07-2022)
 [p] boot2/BootMii Launch (p: 19-07-2022)
+[p] "mini" Launch (p: 09-08-2023)
 [p] boot2/Nintendo Launch (p: 19-07-2022)
 [ ] IOS Launch
 [ ] PowerPC bringup

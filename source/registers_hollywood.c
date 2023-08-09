@@ -94,16 +94,17 @@ void HW_WriteRegister(uc_engine *uc, uint64_t offset, unsigned size, uint64_t va
         uint32_t masked = (value32 & HW_State_GPIO_En) & HW_State_GPIO_Dir;
         if ((masked & GPIO_DEBUGMASK) != (HW_State_GPIO & GPIO_DEBUGMASK)) {
             unsigned char newDebug = ((masked & GPIO_DEBUGMASK) >> 16) & 0xFF;
-            HW_printfv("GPIO DEBUG: %02x (%c)", newDebug, newDebug);
+            if (newDebug >= ' ' && newDebug <= '~')
+                HW_printfv("GPIO DEBUG: %02x (%c)", newDebug, newDebug);
+            else
+                HW_printfv("GPIO DEBUG: %02x", newDebug);
         }
         // this is bad, it doesn't take into account disabled and input pins
         HW_State_GPIO = masked;
         return;
     } else if (offset == HW_GPIO_INTFLAG) {
-        // HACK - Commented this out so BootMii would always fall back
-        // due to power button boot behaviour
-        //HW_State_GPIO_IntFlag = value32;
-        //return;
+        HW_State_GPIO_IntFlag = value32;
+        return;
     } else if (offset == HW_SPARE0) {
         // TODO: figure out WTF this is doing, for now just set the values in HW_BOOT0 that boot1 is happy with
         if (GET_BIT(value32, 16)) {

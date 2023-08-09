@@ -14,6 +14,7 @@ files/*.bin
 files/*.bak
 sram.bin
 mem1.bin
+mem2.bin
 boot1a.bin
 boot1b.bin
 boot1c.bin
@@ -24,3 +25,4 @@ boot1d.bin
 .DS_Store
 .Spotlight-V100
 .Trashes
+*.dSYM

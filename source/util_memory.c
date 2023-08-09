@@ -1,5 +1,6 @@
 #include <uniicorn.h>
 #include <string.h>
+#include <stdbool.h>
 
 // memory allocations on the host
 void * BOOT0_Buffer;
@@ -21,11 +22,6 @@ void * MEM_EmuToHost(uint64_t emu, MEM_Source src) {
         return SRAM_Buffer + (emu - SRAM_BASE);
     if (emu >= SRAM_MIRROR && emu < SRAM_MIRROR + SRAM_SIZE)
         return SRAM_Buffer + (emu - SRAM_MIRROR);
-    // hack to get debug out
-    if (MEM_ARM_SRAMState == 4 && emu >= WEIRD2_BASE && emu < WEIRD2_BASE + WEIRD_SIZE)
-        return SRAM_Buffer + (emu - WEIRD2_BASE);
-    if (MEM_ARM_SRAMState == 3 && emu >= WEIRD1_BASE && emu < WEIRD1_BASE + (WEIRD_SIZE * 2))
-        return SRAM_Buffer + (emu - WEIRD1_BASE);
     // main memory
     if (emu >= MEM1_BASE && emu < MEM1_BASE + MEM1_SIZE)
         return MEM1_Buffer + (emu - MEM1_BASE);
@@ -47,8 +43,11 @@ void MEM_ARM_SetSRAM(bool iouen, bool boot0, bool mmu) {
     uc_mem_unmap(ARM_unicorn, SRAM_BASE + SRAM_A_SIZE, SRAM_B_SIZE);
     uc_mem_unmap(ARM_unicorn, SRAM_MIRROR + SRAM_A_SIZE, SRAM_B_SIZE);
     //MEM_printfv("Updating mappings (boot0: %i, iouen: %i, mmu: %i)", boot0, iouen, mmu);
-    if (mmu)
+    if (mmu) {
+        uc_mem_map_ptr(ARM_unicorn, SRAM_BASE, SRAM_SIZE, UC_PROT_ALL, SRAM_Buffer);
+        uc_mem_map_ptr(ARM_unicorn, SRAM_MIRROR, SRAM_SIZE, UC_PROT_ALL, SRAM_Buffer);
         return;
+    }
     if (boot0) { 
         if (!iouen) { // bootup state
             // the SRAM 0d40/fff0 state is normal
@@ -106,4 +105,15 @@ void MEM_MakeAllocations() {
     SRAM_Buffer = malloc(SRAM_SIZE);
     MEM1_Buffer = malloc(MEM1_SIZE);
     MEM2_Buffer = malloc(MEM2_SIZE);
+}
+
+void MEM_FreeAllocations() {
+    free(BOOT0_Buffer);
+    free(SRAM_Buffer);
+    free(MEM1_Buffer);
+    free(MEM2_Buffer);
+}
+
+bool MEM_AllocationsValid() {
+    return BOOT0_Buffer != NULL && SRAM_Buffer != NULL && MEM1_Buffer != NULL && MEM2_Buffer != NULL;
 }
